@@ -1,7 +1,7 @@
 # WeatherScan-2.0
 WeatherScan 2.0 - README
 
-These scripts are used to send a PD120 SSTV image via a Amateur Radio Transceiver that is either a forecast for the area, or a radar image pulled from NWS.
+These scripts are used to send a PD120 SSTV image from Linux via an Amateur Radio Transceiver that is either a forecast for the area, or a radar image pulled from NWS. Project designed for Debian/GNOME Linux.
 
 RADAR
 
@@ -22,6 +22,8 @@ Download the repository, and edit the following variables
 -In radar.sh, change the wget command to link to a NWS office that covers your location.
 
 -This script is designed for use with the PD120 SSTV Mode. This mode requires an image resolution of 640x496. If you wish to use a different mode, change the pysstv mode to what you want to use, and change the convert command to the proper resolution. Please refer to the PySSTV documentation for available modes and required resolutions.
+
+-An audio file for 20 WPM CW ID is played after the SSTV image is sent. This is accomplished with the id.wav file in radarplay.sh. Comment out this line if you do not wish to have this.
 
 -In all three files, edit the file paths to match your setup.
 
@@ -74,6 +76,8 @@ Download the repository, and edit the following variables
    -iconSize and img.paste: These set your weather icon image size and location. Adjust as necessary.
 
 -This script is designed for use with the PD120 SSTV Mode. This mode requires an image resolution of 640x496. If you wish to use a different mode, change the pysstv mode to what you want to use. Please refer to the PySSTV documentation for available modes and required resolutions.
+
+-An audio file for 20 WPM CW ID is played after the SSTV image is sent. This is accomplished with the id.wav file in forecastplay.sh. Comment out this line if you do not wish to have this.
 
 -In all four files, edit the file paths to match your setup.
 
