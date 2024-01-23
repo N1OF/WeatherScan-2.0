@@ -26,7 +26,7 @@ def degrees_to_cardinal(degrees):
     else:
         return "Unknown"
 
-# OpenWeatherMap API key and endpoint
+# OpenWeatherMap API key and endpoints
 api_key = "YOUR_API_KEY"
 api_endpoint = "http://api.openweathermap.org/data/2.5/weather"
 forecast_endpoint = "http://api.openweathermap.org/data/2.5/forecast/"
@@ -115,8 +115,8 @@ wrapped_text = textwrap.fill(f"Right now . . . in YOURTOWN, the temperature is {
 # Text Wrap for Station Info. Enter additional text here. Example Below.
 wrapped_info = textwrap.fill(f"SSTV Radar Image sent at top of hour, Forecast sent at half hour. 8A-10P Daily, 432.350 MHz PD120.", width=35)
 
-# Text Wrap for Alerts
-wrapped_alerts = textwrap.fill(f"{alert_text} for Hancock County.", width=40)
+# Text Wrap for Alerts. Replace YOURCOUNTY with your county warning area.
+wrapped_alerts = textwrap.fill(f"{alert_text} for YOURCOUNTY.", width=40)
 
 # Body Text with drop shadow
 shadow_offset = 2  # Adjust as needed
