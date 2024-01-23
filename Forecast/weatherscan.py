@@ -1,5 +1,3 @@
-# WeatherScan 2.0 - Used to generate text onto a template image, pulling from API
-
 import requests
 from PIL import Image, ImageDraw, ImageFont
 import textwrap
@@ -29,25 +27,18 @@ def degrees_to_cardinal(degrees):
         return "Unknown"
 
 # OpenWeatherMap API key and endpoint
-api_key = "YOURAPIKEY"
+api_key = "YOUR_API_KEY"
 api_endpoint = "http://api.openweathermap.org/data/2.5/weather"
-forecast_endpoint = "http://api.openweathermap.org/data/2.5/forecast"
-nws_alerts_endpoint = f"https://api.weather.gov/alerts/active/zone/[YOURCOUNTYCODE]"
+forecast_endpoint = "http://api.openweathermap.org/data/2.5/forecast/"
+nws_alerts_endpoint = f"https://api.weather.gov/alerts/active/zone/COUNTYCODE" # Enter your county code
 
-# Parameters for your location (replace with your coordinates in decimal degrees)
+# Parameters for your location (replace with your coordinates)
 params = {
-    'lat': 00.0000,
-    'lon': -00.0000,
+    'lat': YOUR_LATITUDE,
+    'lon': YOUR_LONGITUDE,
     'appid': api_key,
     'units': 'imperial'  # Use 'imperial' for Fahrenheit
 }
-
-
-
-# Location variables for text
-location = "YOURLOCATION"
-county = "YOURCOUNTY"
-
 
 # Make API request for Current Conditions
 response = requests.get(api_endpoint, params=params)
@@ -59,106 +50,115 @@ dataForecast = results.json()
 
 # API request for Active Alerts
 response_alerts = requests.get(nws_alerts_endpoint)
-alertsData = response_alerts.json()
+alerts_data = response_alerts.json()
 
-# Extract relevant weather information (See OWM API for data you can use)
-temp = data['main']['temp']
+# Extract relevant weather information
+temperature = data['main']['temp']
 description = data['weather'][0]['description']
-iconCode = data['weather'][0]['icon']
-windSpeed = data['wind']['speed']
-windDeg = data['wind']['deg']
-strPrecipPercent = dataForecast['list'][0]['pop']
+icon_code = data['weather'][0]['icon']
+wind_speed = data['wind']['speed']
+wind_deg = data['wind']['deg']
+precipPercent = dataForecast['list'][0]['pop']
 feelslike = data['main']['feels_like']
 
 # Extract alert data from NWS API
-alerts = alertsData.get('features', [])
-alertTitles = [alert.get('properties', {}).get('event', 'Unknown Event') for alert in alerts]
+alerts = alerts_data.get('features', [])
+alert_titles = [alert.get('properties', {}).get('event', 'Unknown Event') for alert in alerts]
 
 # Print Alert titles if present, if not, print "There are no active alerts" string
-if not alertTitles:
-    alertText = ("There are no active alerts")
+if not alert_titles:
+    alert_text = ("There are no active alerts")
 else:
-    for title in alertTitles:
-        alertText = (title)
+    for title in alert_titles:
+        alert_text = (title)
 
 # Round to nearest whole number
-roundedTemp = round(temp)
-roundedWind = round(windSpeed)
+roundedTemp = round(temperature)
+roundedWind = round(wind_speed)
 roundedFeelsLike = round(feelslike)
 
-precipPercent = int(strPrecipPercent) # Convert decimal to string
+# Convert precipPercent to Percentage
+convertedRain = precipPercent * 100
+intRain = int(convertedRain)
 
-convertedRain = precipPercent * 100 # Convert precipPercent from Decimal to Percentage
+# Convert Wind Degrees to Cardinal Directions
+cardinal_direction = degrees_to_cardinal(wind_deg)
 
-cardinal_direction = degrees_to_cardinal(windDeg) # Convert Wind Degrees to Cardinal Directions
-
-background_color = (255, 255, 255)  # Specify the RGB values for the background color of icon (white in this example)
+# Set the background color for the icon
+background_color = (25, 21, 255)  # Specify the RGB values for the background color (white in this example)
 
 # Open a template image
-img = Image.open("template_image.jpg")
+img = Image.open("path_to_template")
 draw = ImageDraw.Draw(img)
 
 # Choose a different font and font size, used for main body
-font_path1 = "/path/to/font.ttf"  # Replace with the path to your font file
+font_path1 = "path_to_font"  # Replace with the path to your font file
 font_size1 = 25
 font1 = ImageFont.truetype(font_path1, font_size1)
 
 # Choose a different font and font size, used for heading
-font_path2 = "/path/to/font.ttf"  # Replace with the path to your font file
+font_path2 = "path_to_font"  # Replace with the path to your font file
 font_size2 = 25
 font2 = ImageFont.truetype(font_path2, font_size2)
 
 # Font used for alert text at bottom of window
-font_path3 = "/path/to/font.ttf"
+font_path3 = "path_to_font"
 font_size3 = 20
 font3 = ImageFont.truetype(font_path3, font_size3)
 
-max_width = 450 # Set the maximum width for text wrapping
+# Set the maximum width for text wrapping
+max_width = 450
 
-# Wrap the text using the textwrap module
-wrappedText = textwrap.fill(f"Right now . . . in {location}, the temperature is {roundedTemp}\u00b0F, under {description}. \
-                            Winds {cardinal_direction} at {roundedWind} miles per hour. It currently feels like {roundedFeelsLike}\u00b0F. \
-                            Chance of precipitation {convertedRain} percent.", width=30)
+# Wrap the text using the textwrap module. Replace YOURTOWN with your location
+wrapped_text = textwrap.fill(f"Right now . . . in YOURTOWN, the temperature is {roundedTemp}\u00b0F, under {description}. Winds {cardinal_direction} at {roundedWind} miles per hour. It currently feels like {roundedFeelsLike}\u00b0F. Chance of precipitation {intRain} percent.", width=30)
 
-wrappedInfo = textwrap.fill(f"Edit this line for your station info", width=35) # Text Wrap for Station Info
+# Text Wrap for Station Info. Enter additional text here. Example Below.
+wrapped_info = textwrap.fill(f"SSTV Radar Image sent at top of hour, Forecast sent at half hour. 8A-10P Daily, 432.350 MHz PD120.", width=35)
 
-wrapped_alerts = textwrap.fill(f"{alertText} for {county}.", width=40) # Text Wrap for Alerts
+# Text Wrap for Alerts
+wrapped_alerts = textwrap.fill(f"{alert_text} for Hancock County.", width=40)
 
 # Body Text with drop shadow
-shadowOffset = 2  # Adjust as needed
-draw.text((60 + shadowOffset, 125 + shadowOffset), wrappedText, fill="black", font=font1)
-draw.text((60, 125), wrappedText, fill="white", font=font1)
+shadow_offset = 2  # Adjust as needed
+draw.text((60 + shadow_offset, 125 + shadow_offset), wrapped_text, fill="black", font=font1)
+draw.text((60, 125), wrapped_text, fill="white", font=font1)
 
 # Station Info text with drop shadow
-draw.text((60 + shadowOffset, 330 + shadowOffset), wrappedInfo, fill="black", font=font1)
-draw.text((60, 330), wrappedInfo, fill="white", font=font1)
+draw.text((60 + shadow_offset, 330 + shadow_offset), wrapped_info, fill="black", font=font1)
+draw.text((60, 330), wrapped_info, fill="white", font=font1)
 
-# Title/Header Drop Shadow
-draw.text((155 + shadowOffset, 45 + shadowOffset), "Weatherscan 2.0", fill="black", font=font2)
+
+# Title/Header Drop Shadow. Replace YOURTOWN with your location.
+draw.text((155 + shadow_offset, 45 + shadow_offset), "Weatherscan 2.0", fill="black", font=font2)
 draw.text((155, 45), "Weatherscan 2.0", fill="yellow", font=font2)
-draw.text((155 + shadowOffset, 75 + shadowOffset), "for {location}", fill="black", font=font2)
-draw.text((155, 75), "for {location}" , fill="yellow", font=font2)
+draw.text((155 + shadow_offset, 75 + shadow_offset), "for YOURTOWN", fill="black", font=font2)
+draw.text((155, 75), "for YOURTOWN", fill="yellow", font=font2)
 
 # Text for Alerts
-draw.text((50 + shadowOffset, 430 + shadowOffset), wrapped_alerts, fill="black", font=font3)
+draw.text((50 + shadow_offset, 430 + shadow_offset), wrapped_alerts, fill="black", font=font3)
 draw.text((50, 430), wrapped_alerts, fill="white", font=font3)
 
 # Insert the weather icon into the image and resize it
-iconURL = f"http://openweathermap.org/img/w/{iconCode}.png"
-iconImage = Image.open(requests.get(iconURL, stream=True).raw)
+icon_url = f"http://openweathermap.org/img/w/{icon_code}.png"
+icon_image = Image.open(requests.get(icon_url, stream=True).raw)
 
-iconImage = iconImage.convert("RGBA") # Create a copy of the icon with an alpha channel
+# Create a copy of the icon with an alpha channel
+icon_image = icon_image.convert("RGBA")
 
-icon_background = Image.new('RGBA', iconImage.size, background_color) # Create a new image with the specified background color
+# Create a new image with the specified background color
+icon_background = Image.new('RGBA', icon_image.size, background_color)
 
-iconWithBack = Image.alpha_composite(icon_background, iconImage) # Paste the icon onto the new image with the specified background color
+# Paste the icon onto the new image with the specified background color
+icon_with_background = Image.alpha_composite(icon_background, icon_image)
 
 # Resize the icon to the desired dimensions (e.g., 50x50)
-iconSize = (60, 60)
-iconBackResize = iconWithBack.resize(iconSize)
+icon_size = (60, 60)
+icon_with_background_resized = icon_with_background.resize(icon_size)
 
 # Paste the resized icon onto the template image
-img.paste(iconBackResize, (55, 35), iconBackResize)  # Adjust the coordinates based on your template
+img.paste(icon_with_background_resized, (55, 35), icon_with_background_resized)  # Adjust the coordinates based on your template
 
-img.save("output_image.jpg") # Save the modified image
+
+# Save the modified image
+img.save("output_image.jpg")
 
